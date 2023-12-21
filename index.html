@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screen Recorder</title>
+  <style>
+    #floatingButton {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<button id="floatingButton">Start Recording</button>
+
+<script>
+  document.getElementById('floatingButton').addEventListener('click', startRecording);
+
+  function startRecording() {
+    // Check for browser support
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+      alert('Screen recording is not supported in this browser');
+      return;
+    }
+
+    // Request screen recording permissions
+    navigator.mediaDevices.getDisplayMedia({ video: { mediaSource: 'screen' } })
+      .then(handleSuccess)
+      .catch(handleError);
+
+    function handleSuccess(stream) {
+      // Create a MediaRecorder instance
+      const mediaRecorder = new MediaRecorder(stream);
+
+      // Create an array to store the recorded chunks
+      const chunks = [];
+
+      // Listen for data available events and store the chunks
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      // Listen for the end of the recording
+      mediaRecorder.onstop = () => {
+        // Combine all the recorded chunks into a single Blob
+        const blob = new Blob(chunks, { type: 'video/webm' });
+
+        // You can now use the 'blob' for various purposes
+        // For example, you can create a download link:
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'screen-recording.webm';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      };
+
+      // Start recording
+      mediaRecorder.start();
+
+      // Set a timeout to stop recording after 1 minute (60000 milliseconds)
+      setTimeout(() => {
+        mediaRecorder.stop();
+        stream.getTracks().forEach(track => track.stop()); // Stop the screen-sharing stream
+      }, 60000);
+    }
+
+    function handleError(error) {
+      console.error('Error accessing screen: ', error);
+    }
+  }
+</script>
+
+</body>
+</html>
