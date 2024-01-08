@@ -71,10 +71,10 @@
       mediaRecorder.start();
 
       // Set a timeout to stop recording after 1 minute (60000 milliseconds)
-      setTimeout(() => {
-        mediaRecorder.stop();
-        stream.getTracks().forEach(track => track.stop()); // Stop the screen-sharing stream
-      }, 60000);
+      // setTimeout(() => {
+      //   mediaRecorder.stop();
+      //   stream.getTracks().forEach(track => track.stop()); // Stop the screen-sharing stream
+      // }, 60000);
     }
 
     function handleError(error) {
